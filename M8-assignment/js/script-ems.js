@@ -1,38 +1,16 @@
 // Create variables
-let emp
-let empList = []
 const $ = id => document.getElementById(id)
 
 // Count Rows
 const rowCounter = (empCount) => {
-    rowCount = table.rows.length - 1
-    empCount.textContent = `(${rowCount})`
-}
-
-// DELETE EMPLOYEE
-const deleteBtn = (row) => {
-    if (confirm('Are you sure you want to delete this employee?') == true) {
-        let i = row.parentNode.parentNode.rowIndex
-        document.getElementById('empTable').deleteRow(i)
-        rowCounter(empCount)
-    } else {
-        // nothing
-    }
+    let rowCount = table.rows.length - 1
+    empCount.innerHTML = `(${rowCount})`
 }
 
 // RESET THE FORM
 const resetForm = () => {
     $('addForm').reset()
     $('id').focus()
-}
-
-// creating cells
-for (let c = 0; c < 5; c++) {
-    // create <tr> element
-    const currentRow = document.createElement("tr")
-    // create <td> element
-    const currentText = document.createTextNode("tr")
-
 }
 
 // GET ADD EMPLOYEE FORM AND EMPLOYEE TABLE FROM THE DOM
@@ -42,27 +20,38 @@ let table = $('empTable')
 // SET A COUNT VARIABLE TO DISPLAY NEXT TO EMPLOYEES HEADER
 let empCount = $('empCount')
 
-// ADD EMPLOYEE ARRAY
-const intEmp = () => {
-    // COLLECT VALUES FROM FORM ELEMENTS
-    // GET THE VALUES FROM THE TEXT BOXES
-    let empID = $('id').value
-    let name = $('name').value
-    let empExt = $('extension').value
-    let email = $('email').value
-    let dept = $('department').value
+const clearTable = () => {
+    console.log("Clearing table")
+    let table = document.getElementById("empTable").getElementsByTagName("tbody")[0]
+    table.innerHTML = ""
+}
 
-    // INSERT A NEW ROW AT THE END OF THE EMPLOYEES TABLE
-    let row = table.insertRow(-1)
-    row.className = 'selectedRow'
-
-    // Create button
-    const btn = document.createElement('button')
-    btn.className = 'button'
-    btn.id = 'button'
-    btn.setAttribute("onclick", "deleteBtn(this)")
-    btn.textContent = 'X'
+// LOAD EMPLOYEE LIST
+const buildTable = (arr) => {
+    clearTable()
+    let tbody = document.getElementById("empTable").getElementsByTagName("tbody")[0]
+    let row
+    let data
+    for (let i of arr) {
+        row  = document.createElement('tr')
+        for (let x of i) {
+            data = document.createElement('td')
+            data.innerHTML += x
+            row.appendChild(data)
+        }
+        row.className = 'selectedRow'
+        // Create button
+        const btn = document.createElement('button')
+        btn.className = 'button'
+        btn.id = 'button'
+        btn.setAttribute("onclick", "deleteBtn(this)")
+        btn.textContent = 'X'
+        row.appendChild(btn)
+        tbody.appendChild(row)
     }
+    rowCounter(empCount)
+    localStorage.setItem('empList', JSON.stringify(empArr))
+}
 
 // ADD EMPLOYEE
 form.addEventListener('submit', (e) => {
@@ -76,46 +65,31 @@ form.addEventListener('submit', (e) => {
     let email = $('email').value
     let dept = $('department').value
 
-    // INSERT A NEW ROW AT THE END OF THE EMPLOYEES TABLE
-    let row = table.insertRow(-1)
-    row.className = 'selectedRow'
+    // ADD THE NEW EMPLOYEE TO A NEW ARRAY OBJECT
+    const newEmp = [empID,name,empExt,email,dept]
 
-    // Create button
-    const btn = document.createElement('button')
-    btn.className = 'button'
-    btn.id = 'button'
-    btn.setAttribute("onclick", "deleteBtn(this)")
-    btn.textContent = 'X'
+    empArr.push(newEmp)
 
-    // INSERT A CELL FOR EACH ITEM WITHIN THE NEW ROW
-    let c1 = row.insertCell(0);
-    let c2 = row.insertCell(1);
-    let c3 = row.insertCell(2);
-    let c4 = row.insertCell(3);
-    let c5 = row.insertCell(4);
-    let c6 = row.insertCell(5);
+    buildTable(empArr)
 
-    // APPEND THE TEXT VALUES AS TEXT NODES WITHIN THE CELLS
-    c1Value = document.createTextNode(empID)
-    c2Value = document.createTextNode(name)
-    c3Value = document.createTextNode(empExt)
-    c4Value = document.createTextNode(email)
-    c5Value = document.createTextNode(dept)
-    c6Value = btn
-    c1.appendChild(c1Value)
-    c2.appendChild(c2Value)
-    c3.appendChild(c3Value)
-    c4.appendChild(c4Value)
-    c5.appendChild(c5Value)
-    c6.appendChild(c6Value)
-
-    table.appendChild(row)
-    
     resetForm()
 
     // INCREMENENT THE NUMBER OF EMPLOYEES IN THE TABLE
     rowCounter(empCount)
 })
+
+// DELETE EMPLOYEE
+const deleteBtn = (row) => {
+    if (confirm('Are you sure you want to delete this employee?') == true) {
+        let i = row.parentNode.rowIndex
+        let deleteRow = empArr.splice(i-1,1)
+        console.log(deleteRow)
+        buildTable(empArr)
+        rowCounter(empCount)
+    } else {
+        // nothing
+    }
+}
 
 // CREATE AN ARRAY OF EMPLOYEES
 let empArr = [
@@ -127,102 +101,27 @@ let empArr = [
     [80000006,'Shin',1006,"shin@evilcorp.com","Engineering"]
 ]
 
+// BUILD THE EMPLOYEES TABLE WHEN THE PAGE LOADS
 // CHECK TO SEE IF STORAGE OBJECT EXISTS WHEN THE PAGE LOADS
 // IF DOES, RETURN STORAGE OBJECT INTO ARRAY INSTEAD OF POPULATED ARRAY
-// load initial employee list
 
-// const initialEmp = () => {
-//     if (empList.length === 0) {
-//         emp = localStorage.getItem('empInfo') || ''
-//         for (let key of empArr) {
-//             // console.log(key)
-//             for (let value of key) {
-//                 localStorage.empList = JSON.stringify(value)
-//             }
-//         }
-//         let storage = JSON.parse(localStorage.empList)
-//         console.log(storage)
-//     }
-// }
-
-// const storageObject = () => {
-//     if (empList.length === 0) {
-//         storage = localStorage.getItem('employee') || ''
-//         if (storage.length > 0) {
-//             empList = JSON.parse(localStorage.getItem('employee'))
-//             console.log(empList)
-//         }
-//     }
-//     if (empList.length > 0) {
-//         empList.sort()
-//         list = empList.join('\n')
-//         console.log(list)
-
-        // DISPLAY TASKS STRING
-        // $('task_list').value = list
-    // }
-// }
-// initialEmp()
-
-const storageList = () => {
-    // console.log(empArr)
-    for (const i of empArr) {
-        // console.log(i)
-        for (const x of i) {
-        console.log(x)
-        }
+const savedEmps = () => {
+    // if (localStorage.empList === null) {
+    if (localStorage.getItem('empList') === null) {
+        localStorage.setItem('empList', JSON.stringify(empArr))
+    } else {
+        empArr.length = 0
+        empArr = JSON.parse(localStorage.getItem('empList'))
     }
-    // empList.push(empArr)
 }
-// storageList()
 
-// GET DOM ELEMENTS
-
-
-// BUILD THE EMPLOYEES TABLE WHEN THE PAGE LOADS
-
-
-// ADD EMPLOYEE
-form.addEventListener('submit', (e) => {
-    // PREVENT FORM SUBMISSION
-    e.preventDefault();
-    // GET THE VALUES FROM THE TEXT BOXES
-    let empID = $('id').value
-    let name = $('name').value
-    let empExt = $('extension').value
-    let email = $('email').value
-    let dept = $('department').value
-
-    // ADD THE NEW EMPLOYEE TO A NEW ARRAY OBJECT
-    let newEmp = [empID, name, empExt, email, dept]
-    for (let i of newEmp) {
-        console.log(i)
-    }
-
-    // PUSH THE NEW ARRAY TO THE *EXISTING* EMPLOYEES ARRAY
-
-    // BUILD THE GRID
-
-    // RESET THE FORM
-
-    // SET FOCUS BACK TO THE ID TEXT BOX
-
-});
-
-// DELETE EMPLOYEE
-empTable.addEventListener('click', (e) => {
-    // CONFIRM THE DELETE
-
-        // GET THE SELECTED ROWINDEX FOR THE TR (PARENTNODE.PARENTNODE)
-
-        // REMOVE EMPLOYEE FROM ARRAY
-
-        // BUILD THE GRID
-
-});
+savedEmps()
+buildTable(empArr)
 
 // BUILD THE EMPLOYEES GRID
-function buildGrid() {
+// I did this above
+
+// function buildGrid() {
     // REMOVE THE EXISTING SET OF ROWS BY REMOVING THE ENTIRE TBODY SECTION
 
     // REBUILD THE TBODY FROM SCRATCH
@@ -236,4 +135,4 @@ function buildGrid() {
 
     // STORE THE ARRAY IN STORAGE
 
-};
+// };
